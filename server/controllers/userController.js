@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -67,27 +67,42 @@ export const loginUser = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if(!isMatch){
-        return res.json({
-            success: false,
-            message: "Invalid Credentials"
-        })
+    if (!isMatch) {
+      return res.json({
+        success: false,
+        message: "Invalid Credentials",
+      });
     }
 
-    const token = generateToken(user._id.toString())
+    const token = generateToken(user._id.toString());
 
     res.json({
-        success: true,
-        message: "Login Successfully",
-        token,
-    })
+      success: true,
+      message: "Login Successfully",
+      token,
+    });
   } catch (error) {
     console.log(error.message);
     res.json({
-        success: false,
-        message: error.message,
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-    })
-    
+// Get User data using Token (JWT)
+export const getUserData = async (req, res) => {
+  try {
+    const { user } = req;
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.json({
+      success: false,
+      message: error.message,
+    });
   }
 };
