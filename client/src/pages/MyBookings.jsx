@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { assets, dummyMyBookingsData } from "../assets/assets";
 import { Title } from "../components/Title";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 function MyBookings() {
+  const { axios, user, currency } = useAppContext();
+
   const [bookings, setBookings] = useState([]);
-  const currency = import.meta.env.VITE_CURRENCY
 
   const fetchMyBookings = async () => {
-    setBookings(dummyMyBookingsData);
+    try {
+      const { data } = await axios.get("api/bookings/user");
+      if (data.success) {
+        setBookings(data.bookings);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
-    fetchMyBookings();
-  }, []);
+    user && fetchMyBookings();
+  }, [user]);
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 2xl:px-48 mt-16 text-sm max-w-7xl">
@@ -65,33 +77,44 @@ function MyBookings() {
               </div>
 
               <div className="flex items-start gap-2 mt-3">
-                <img src={assets.calendar_icon_colored} alt="" className="w-4 h-4 mt-1" />
+                <img
+                  src={assets.calendar_icon_colored}
+                  alt=""
+                  className="w-4 h-4 mt-1"
+                />
                 <div>
                   <p className="text-gray-500">Rental Period</p>
-                  <p>{booking.pickupDate.split('T')[0]} To {booking.returnDate.split('T')[0]}</p>
+                  <p>
+                    {booking.pickupDate.split("T")[0]} To{" "}
+                    {booking.returnDate.split("T")[0]}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-2 mt-3">
-                <img src={assets.location_icon_colored} alt="" className="w-4 h-4 mt-1" />
+                <img
+                  src={assets.location_icon_colored}
+                  alt=""
+                  className="w-4 h-4 mt-1"
+                />
                 <div>
                   <p className="text-gray-500">Pick-up Location</p>
                   <p>{booking.car.location}</p>
                 </div>
               </div>
-
             </div>
 
             {/* price */}
             <div className="md:col-span-1 flex flex-col justify-between gap-6">
               <div className="text-sm text-gray-500 text-right">
-                  <p>Total Price</p>
-                  <h1 className="text-2xl font-semibold text-primary">{currency}{booking.price}</h1>
-                  <p>Booked on {booking.createdAt.split('T')[0]}</p>
+                <p>Total Price</p>
+                <h1 className="text-2xl font-semibold text-primary">
+                  {currency}
+                  {booking.price}
+                </h1>
+                <p>Booked on {booking.createdAt.split("T")[0]}</p>
               </div>
             </div>
-
-
           </div>
         ))}
       </div>
